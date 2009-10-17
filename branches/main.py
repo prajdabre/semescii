@@ -1,3 +1,8 @@
 import appuifw
 
-appuifw.query(u"Type your name:", "text")
+names = appuifw.multi_query(u"First name:", u"Last name:");
+if names:
+    first, last = names;
+    appuifw.note(u"Your full name" + first + " " + last);
+else:
+    appuifw.note(u"Cancel");
