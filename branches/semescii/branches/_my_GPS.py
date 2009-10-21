@@ -16,3 +16,4 @@ class GPS:
         self.lon = self.lon + float(random.randrange(0, 2)) / 100
         self.lat = self.lat + float(random.randrange(0, 2)) / 100
         return {"lon":self.lon, "lat":self.lat}
+    
