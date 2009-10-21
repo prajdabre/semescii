@@ -1,5 +1,8 @@
 # !-- coding: UTF-8 --!
+
 import _my_GPS
+import _my_DataProcess
+
 import socket
 import time
 class Client:
@@ -44,10 +47,11 @@ class Client:
             #отправляем координаты если они изменились
             if pos["lon"] != self.pos["lon"] and pos["lat"] != self.pos["lat"]:
                 self.pos = pos
-                msg = """Sending %s, %s""" % (self.pos["lon"], self.pos["lat"])
+                msg = """action=location;lon=%s;lat=%s""" % (self.pos["lon"], self.pos["lat"])
                 self.s.send(msg)
            
     def getPlayersCoord(self):
         while 1:
             data = self.s.recv(1024)
             print "Received: ", data  
+            

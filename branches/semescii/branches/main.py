@@ -1,5 +1,6 @@
 import socket;
 
+
 adress, services = socket.bt_discover();
 print "Discovered: %s, %s" % (adress, services);
 target = (adress, services.values()[0]);
@@ -19,3 +20,5 @@ while True:
 to_gps.close();
 conn.close();
 print "You now at latitude %s and longtitude %s" % (lat, lon);
+
+#print [k(1) for k in [lambda x: x+p for p in range(3)]]
