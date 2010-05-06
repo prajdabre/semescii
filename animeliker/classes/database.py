@@ -15,8 +15,7 @@ class SqliteDriver:
         
     def commit(self):
         self.con.commit()
-    
-    
+       
 
 #Google App Engine database driver
 class AppEngineDriver:
@@ -38,8 +37,6 @@ class Resource:
     
     def fetchone(self):
         return pop(self.data)
-    
-    
     
     
 

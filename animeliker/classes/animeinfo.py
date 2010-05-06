@@ -11,9 +11,6 @@ import database
 class animeinfo:
 	def __init__(self, con):
 		self.con = con
-
-	def __del__(self):
-		self.con.close()
 		
 	def info(self, id):
 		return self.con.execute("select * from anime where rowid = %d" % id).fetchone()
@@ -43,7 +40,7 @@ class animeinfo:
 				 (1.5, self.genresscore(rowid)),
 				 (0.5, self.tagsscore(rowid)),
 				 (0, {0:0})]
-		
+		#XXX need refactoring!!! troubles with list upper
 		
 		ids =  [scores.keys() for weight, scores in weights][0]
 		for i in range(0, len(ids)):
@@ -75,6 +72,9 @@ class animeinfo:
 		p = cPickle.load( open("data/userscoresfliped.txt", 'r') )
 		r = recommendations.userRecommendations( p )
 		return self.normalizescores(r.topMatches(rowid))
+	
+	def staffscore(self, rowid):
+		pass
 		
 	def producerscore(self, rowid):
 		cur = self.con.execute("SELECT producers FROM anime WHERE rowid=%d" % rowid)
