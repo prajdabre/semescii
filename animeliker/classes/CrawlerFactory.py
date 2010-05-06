@@ -1,5 +1,7 @@
 import urllib2, re
 from urlparse import urljoin
+from BeautifulSoup import *
+
 
 class CrawlerFactory():
     crawlers = []
