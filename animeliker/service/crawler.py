@@ -120,5 +120,6 @@ class crawler:
 		self.con.execute('create index wordurlidx on wordlocation(wordid)')
 		self.con.execute('create index urltoidx on link(toid)')
 		self.con.execute('create index urlfromidx on link(fromid)')
-		self.dbcommit( )
+		self.dbcommit()
 		
+
