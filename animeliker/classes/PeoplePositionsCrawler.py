@@ -1,19 +1,23 @@
-from crawler import crawler
+from Crawler import Crawler
 import re
 
-class PeoplePositionsCrawler(crawler):
+class PeoplePositionsCrawler(Crawler):
     uripattern=ur"^http://myanimelist.net/people.php\?id=[0-9]+$"
     def isindexed(self, page):
-        return True
+        return False
     
     def addtoindex(self, page, soup):
         print "indexed"
         people_id = re.search( '^(.*) - MyAnimeList\.net$', str(soup('title')[0].contents[0]) ).group(1)
         contents = soup.findAll(text='Anime Staff Positions')[0].findNext('table').findAll('tr')
-        for tr in contents:            
-            position = tr.findAll('small')[0].contents[0]
-            anime_id = tr.findAll('a')[1].contents[0]                
-        
+        for tr in contents:        
+        	try:
+        	    position = tr.findAll('small')[0].contents[0]
+        	    anime_id = tr.findAll('a')[1].contents[0]
+        	except:
+        		continue
+        	
+        	print "%s:%s" % (position, anime_id)
         
             
     def insertrow(self, t):

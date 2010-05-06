@@ -1,4 +1,3 @@
-﻿# -*- coding: utf-8 -*-
 ignorewords=set(['the','of','to','and','a','in','is','it'])
 from pysqlite2 import dbapi2 as sqlite
 from urlparse import urljoin
@@ -6,7 +5,7 @@ import urllib2, re
 from BeautifulSoup import *
 import chardet
 
-class crawler:
+class Crawler:
 	
 	def __init__(self,dbname):
 		self.con=sqlite.connect(dbname)
@@ -65,7 +64,6 @@ class crawler:
 		u=self.con.execute \
 		("select rowid from urllist where url='%s'" % url).fetchone( )
 		if u!=None:
-			# Проверяем, что страница посещалась
 			v=self.con.execute(
 			'select * from wordlocation where urlid=%d' % u[0]).fetchone( )
 			if v!=None: return True

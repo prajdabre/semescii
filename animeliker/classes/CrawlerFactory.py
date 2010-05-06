@@ -2,6 +2,8 @@ from BeautifulSoup import *
 from PeopleInfoCrawler import PeopleInfoCrawler
 from PeoplePositionsCrawler import PeoplePositionsCrawler
 from AnimeCrawler import AnimeCrawler
+
+
 import urllib2, re
 from urlparse import urljoin
 
@@ -16,10 +18,13 @@ class CrawlerFactory():
             newpages=set()
             for page in pages:
                 try:
-                    c=urllib2.urlopen(page)
+                    print "Opening: %s" % page
+                    c=urllib2.urlopen(page)                    
                 except:
                     print "Network connection troubles. Can't connect with: %s" % page
                     continue
+                
+                
                 
                 soup=BeautifulSoup(c.read())
                 for crawler in self.crawlers:
@@ -49,6 +54,6 @@ CrawlerFactory.registerCrawler(PeopleInfoCrawler('../data/people.db'))
 CrawlerFactory.registerCrawler(PeoplePositionsCrawler('../data/people_positions.db'))
 
 
-for i in range(600, 620):
+for i in range(100,120):
     page = "http://myanimelist.net/favorites.php?type=people&limit=%d" % (i * 20)
     CrawlerFactory.crawl([page], 10)

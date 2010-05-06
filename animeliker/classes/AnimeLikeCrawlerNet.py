@@ -1,6 +1,6 @@
 ﻿# -*- coding: utf-8 -*-
 
-class animelikecrawlernet:
+class AnimeLikeCrawlerNet:
    def isWAnime(self, word):
     	pass
     

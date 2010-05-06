@@ -1,12 +1,12 @@
 # -*- coding: utf-8 -*-
-from crawler import crawler
 from urlparse import urljoin
 import urllib2, re
-from BeautifulSoup import *
 import chardet
 
+from BeautifulSoup import *
+from Crawler import Crawler
 
-class PeopleInfoCrawler(crawler):
+class PeopleInfoCrawler(Crawler):
     uripattern=ur"^http://myanimelist.net/people.php\?id=[0-9]+$"
     def isindexed(self, page):
         return self.con.execute("select * from people where page='%s'" % page).fetchone()

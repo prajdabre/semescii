@@ -1,8 +1,9 @@
-﻿# -*- coding: utf-8 -*-
-import crawler
+import re
+
+from Crawler import Crawler
     
-class myanimelistcrawler(crawler):     
-        
+class AnimeCrawler(Crawler):     
+    uripattern=ur"^http://myanimelist.net/anime/[0-9]+/[^\/]*$"
     def isindexed(self, page):
         return self.con.execute("select * from anime where page='%s'" % page).fetchone()
     
@@ -12,18 +13,17 @@ class myanimelistcrawler(crawler):
         
     def addtoindex(self, page, soup):
         if (self.isindexed(page) != None): return
-        print "indexing: %s" % page 
-
+        print "indexing: %s" % page
         try:
             score = float(soup('span', text='Score:')[0].findParent().findParent().contents[1])
         except:
-            return
+            return False
         
         try:
             description = ''.join([ str(k) for k in 
                                     soup('h2', text='Synopsis')[1].findParent().findParent().contents[1:] ])
         except:
-            description = None
+            description = ''
         
         maintitle = re.search( '^(.*) - MyAnimeList\.net$', str(soup('title')[0].contents[0]) ).group(1)
         try:
@@ -76,6 +76,7 @@ class myanimelistcrawler(crawler):
              str(img).decode('utf-8', 'ignore'))
         self.insertrow(t)
     
+        
     
     def insertrow(self, t):
         q = "insert into anime(page, description,titles,genres,score,tags,producers,img) \
@@ -84,7 +85,20 @@ class myanimelistcrawler(crawler):
         self.dbcommit()  
         
     def updaterow(self, t):
-        pass   
+        q = """
+            update anime set
+            page = ?,
+            description = ?,
+            titles = ?,
+            genres = ?,
+            score = ?,
+            tags = ?,
+            producers =?,
+            img = ?
+            where rowid = ?
+        """
+        self.con.execute(q, t)
+        self.dbcommit()
             
     def createindextables(self):
         self.con.execute("""
@@ -98,14 +112,3 @@ class myanimelistcrawler(crawler):
                                img VARCHAR(500))
         """)
         self.dbcommit()
-
-    
-crawler = myanimelistcrawler('../data/anime.db')
-
-for i in range(108, 900):
-    page = "http://myanimelist.net/topanime.php?type=&limit=%d" % (i * 30)
-    crawler.crawl([page], 10, pattern=ur"^http://myanimelist.net/anime/[0-9]+/[^\/]*$")
-
-    
-#page = "http://myanimelist.net/anime/202/Wolfs_Rain"
-#crawler.crawl([page], 10, pattern=ur"^http://myanimelist.net/anime/[0-9]+/[^\/]*$")
