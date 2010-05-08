@@ -1,3 +1,7 @@
+import sys
+sys.path.append("../classes")
+
+
 import cPickle
 import urllib2, re
 from BeautifulSoup import *
@@ -30,9 +34,7 @@ for user in usersAnimeScores:
 cPickle.dump(converted, open('userscores.txt', 'w'))
 '''
 
-'''
-import recommendations
-p = cPickle.load( open("data/userscores.txt", 'r') )
-r = recommendations.transformPrefs(p)
-cPickle.dump(r, open('data/userscoresfliped.txt', 'w'))
-'''
+import UserRecommendations
+p = cPickle.load( open("../data/userscores.txt", 'r') )
+r = UserRecommendations.transformPrefs(p)
+cPickle.dump(r, open('../data/userscoresfliped.txt', 'w'))
