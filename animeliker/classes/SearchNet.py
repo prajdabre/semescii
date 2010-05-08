@@ -44,16 +44,12 @@ class SearchNet:
 			
 	def generatehiddennode(self,wordids,urls):
 		if len(wordids)>3: return None
-		# Проверить, создавали ли мы уже узел для данного набора слов
 		createkey='_'.join(sorted([str(wi) for wi in wordids]))
-		res=self.con.execute(
-		"select rowid from hiddennode where create_key='%s'" % createkey).fetchone( )
-		# Если нет, создадим сейчас
+		res=self.con.execute("select rowid from hiddennode where create_key='%s'" % createkey).fetchone( )
 		if res==None:
 			cur=self.con.execute(
 			"insert into hiddennode (create_key) values ('%s')" % createkey)
 			hiddenid=cur.lastrowid
-			# Задать веса по умолчанию
 			for wordid in wordids:
 				self.setstrength(wordid,hiddenid,0,1.0/len(wordids))
 			for urlid in urls:
@@ -73,15 +69,14 @@ class SearchNet:
 		return l1.keys()
 		
 	def setupnetwork(self,wordids,urlids):
-		# списки значений
 		self.wordids=wordids
 		self.hiddenids=self.getallhiddenids(wordids,urlids)
 		self.urlids=urlids
-		# выходные сигналы узлов
+		
 		self.ai = [1.0]*len(self.wordids)
 		self.ah = [1.0]*len(self.hiddenids)
 		self.ao = [1.0]*len(self.urlids)
-		# создаем матрицу весов
+		
 		self.wi = [[self.getstrength(wordid,hiddenid,0)
 					for hiddenid in self.hiddenids]
 					for wordid in self.wordids]
@@ -90,17 +85,17 @@ class SearchNet:
 					for hiddenid in self.hiddenids]
 					
 	def feedforward(self):
-		# единственные входные сигналы – слова из запроса
+		
 		for i in range(len(self.wordids)):
 			self.ai[i] = 1.0
 			
-		# возбуждение скрытых узлов
+		
 		for j in range(len(self.hiddenids)):
 			sum = 0.0
 			for i in range(len(self.wordids)):
 				sum = sum + self.ai[i] * self.wi[i][j]
 			self.ah[j] = tanh(sum)
-		# возбуждение выходных узлов
+		
 		for k in range(len(self.urlids)):
 			sum = 0.0
 			for j in range(len(self.hiddenids)):
@@ -113,12 +108,11 @@ class SearchNet:
 		return self.feedforward( )
 		
 	def backPropagate(self, targets, N=0.5):
-		# вычислить поправки для выходного слоя
 		output_deltas = [0.0] * len(self.urlids)
 		for k in range(len(self.urlids)):
 			error = targets[k]-self.ao[k]
 			output_deltas[k] = dtanh(self.ao[k]) * error
-			# вычислить поправки для скрытого слоя
+			
 			hidden_deltas = [0.0] * len(self.hiddenids)
 			for j in range(len(self.hiddenids)):
 				error = 0.0
@@ -126,20 +120,19 @@ class SearchNet:
 					error = error + output_deltas[k]*self.wo[j][k]
 				hidden_deltas[j] = dtanh(self.ah[j]) * error
 			
-			# обновить веса связей между узлами скрытого и выходного слоя
+			
 			for j in range(len(self.hiddenids)):
 				for k in range(len(self.urlids)):
 					change = output_deltas[k]*self.ah[j]
 					self.wo[j][k] = self.wo[j][k] + N*change
 					
-			# обновить веса связей между узлами входного и скрытого слоя
+			
 			for i in range(len(self.wordids)):
 				for j in range(len(self.hiddenids)):
 					change = hidden_deltas[j]*self.ai[i]
 					self.wi[i][j] = self.wi[i][j] + N*change
 
 	def trainquery(self,wordids,urlids,selectedurl):
-		# сгенерировать скрытый узел, если необходимо
 		self.generatehiddennode(wordids,urlids)
 		
 		self.setupnetwork(wordids,urlids)
@@ -150,7 +143,6 @@ class SearchNet:
 		self.updatedatabase( )
 		
 	def updatedatabase(self):
-		# записать в базу данных
 		for i in range(len(self.wordids)):
 			for j in range(len(self.hiddenids)):
 				self.setstrength(self.wordids[i],self. hiddenids[j],0,self.wi[i][j])

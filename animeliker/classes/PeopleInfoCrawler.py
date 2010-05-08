@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 from urlparse import urljoin
 import urllib2, re
 import chardet
@@ -12,67 +11,51 @@ class PeopleInfoCrawler(Crawler):
         return self.con.execute("select * from people where page='%s'" % page).fetchone()
     
     def addtoindex(self, page, soup):
-        if (self.isindexed(page) != None): return False
-        
+        if (self.isindexed(page)): return False
         try:
             name = re.search( '^(.*) - MyAnimeList\.net$', str(soup('title')[0].contents[0]) ).group(1)
-        except:
-            return False
-        
-        print "indexing: %s %s" % (page, name)
-        
-        try:
             member_favorites = str(soup('span', text='Member Favorites:')[0].findParent().findParent().contents[1])
         except:
+            print "Page parsing error."
             return False
+        
+        print "People Info Crawler. Indexing: %s (%s)" % (page, name)
         
         try:
             given_name = str(soup('span', text='Given name:')[0].findParent().findParent().contents[1])
             family_name = str(soup('span', text='Family name:')[0].findParent().findParent().contents[7])
         except:
-            given_name = None
-            family_name = None
+            given_name = ''
+            family_name = ''
         
         try:
             birthday = str(soup('span', text='Birthday:')[0].findParent().findParent().contents[1])
         except: 
-            birthday = None
+            birthday = ''
         
         try:
             more = ' '.join( map( str,
                 soup('span', text='More:')[0].findParent('td').contents[15:]
             ) )
         except:
-            more = None
+            more = ''
          
         
-        t = ( str(page).decode('utf-8', 'ignore'),
+        self.insertrow(
+            (str(page).decode('utf-8', 'ignore'),
              str(name).decode('utf-8', 'ignore'), 
              str(member_favorites).decode('utf-8', 'ignore'), 
              str(given_name).decode('utf-8', 'ignore'), 
              str(family_name).decode('utf-8', 'ignore'), 
              str(birthday).decode('utf-8', 'ignore'), 
              str(more).decode('utf-8', 'ignore'))
-        
-        print t
-        self.insertrow(t)
+        )
         
     
     def insertrow(self, t):
         q = "insert into people(page,name,member_favorites,given_name,family_name,birthday,more) \
              values(?, ?, ?, ?, ?, ?, ?)" 
         self.con.execute(q, t)
-        self.dbcommit()    
-            
-    def createindextables(self):    
-        self.con.execute("""
-            create table people(page VARCHAR(500),
-                                name VARCHAR(500),
-                                given_name VARCHAR(500),
-                                family_name VARCHAR(500),
-                                birthday VARCHAR(500),
-                                member_favorites INT,
-                                more VARCHAR(5000))                    
-        """)
-        self.dbcommit()
+        self.con.commit()
+          
        
