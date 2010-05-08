@@ -14,7 +14,7 @@ class AnimeInfo:
 		
 	def info(self, id):
 		try:
-			return self.con.execute("select * from anime where rowid = %d" % id).fetchone()[0]
+			return self.con.execute("select * from anime where rowid = %d" % id).fetchone()
 		except:
 			return False
 
