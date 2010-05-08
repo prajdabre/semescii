@@ -24,8 +24,7 @@ class UserRecommendations:
 	def sim_pearson(self, p1,p2):
 		si={}
 		for item in self.prefs[p1]:
-			if item in self.prefs[p2]: si[item]=1
-		
+		    if item in self.prefs[p2]: si[item]=1
 		n=len(si)
 		if n == 0: return 0
 		
@@ -48,6 +47,11 @@ class UserRecommendations:
 
 	# Возвращает список наилучших соответствий для человека из словаря prefs.
 	def topMatches(self, person, n=10):
+		try:
+			self.prefs[person]
+		except KeyError:
+			return {}
+		
 		scores=[]
 		for other in self.prefs:
 			if other==person: continue
@@ -55,10 +59,8 @@ class UserRecommendations:
 			if score > 0:
 				scores.append([score, other])
 		
-		
 		scores.sort()
 		scores.reverse()
-		
 		
 		res = {}
 		for (score, name) in scores:

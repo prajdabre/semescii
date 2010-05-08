@@ -38,7 +38,7 @@ class AnimeInfo:
 		rowid=self.getId(movie)
 		totalscores = {}
 		#scoring
-		weights=[(5.0, self.userscore(rowid)),
+		weights=[(4.0, self.userscore(rowid)),
 				 (1.0, self.producerscore(rowid)),
 				 (1.5, self.genresscore(rowid)),
 				 (0.5, self.tagsscore(rowid)),
@@ -61,6 +61,9 @@ class AnimeInfo:
 
 
 	def normalizescores(self,scores,smallIsBetter=0):
+		if (len(scores) == 0):
+			return {}
+		
 		vsmall=0.00001
 		if smallIsBetter:
 			minscore=min(scores.values())
