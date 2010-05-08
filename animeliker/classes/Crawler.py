@@ -6,7 +6,7 @@ from BeautifulSoup import *
 import chardet
 
 class Crawler:
-	
+	uripaterrn = ur".*"
 	def __init__(self,dbname):
 		self.con=sqlite.connect(dbname)
 	
@@ -72,7 +72,7 @@ class Crawler:
 	def addlinkref(self,urlFrom,urlTo,linkText):
 		pass
 		
-	def crawl(self,pages,depth=2,pattern=None):
+	def crawl(self,pages,depth=2):
 		for i in range(depth):
 			newpages=set()
 			for page in pages:
@@ -90,7 +90,9 @@ class Crawler:
 						url=urljoin(page,link['href'])
 						if url.find("'")!=-1: continue
 						url=url.split('#')[0]
-						if url[0:4]== 'http' and not self.isindexed(url) and re.search(pattern, url) != None:
+						if (url[0:4]== 'http' 
+                           and not self.isindexed(url) 
+                           and re.search(self.uripattern, url) != None):
 							newpages.add(url)
 						linkText=self.gettextonly(link)
 						self.addlinkref(page,url,linkText)

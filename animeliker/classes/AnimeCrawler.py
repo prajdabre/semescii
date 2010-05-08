@@ -5,15 +5,15 @@ from Crawler import Crawler
 class AnimeCrawler(Crawler):     
     uripattern=ur"^http://myanimelist.net/anime/[0-9]+/[^\/]*$"
     def isindexed(self, page):
-        return self.con.execute("select * from anime where page='%s'" % page).fetchone()
+        return (self.con.execute("select * from anime where page='%s'" % page).fetchone() != None)
     
     def isuptodate(self, page):
         self.con.execute("select * from anime where page='%s' and")
         return False        
         
     def addtoindex(self, page, soup):
-        if (self.isindexed(page) != None): return
-        print "indexing: %s" % page
+        if (self.isindexed(page)): return
+        print "Anime Crawler. Indexing: %s" % page
         try:
             score = float(soup('span', text='Score:')[0].findParent().findParent().contents[1])
         except:

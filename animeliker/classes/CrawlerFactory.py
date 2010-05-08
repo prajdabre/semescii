@@ -20,12 +20,11 @@ class CrawlerFactory():
                     print "Network connection troubles. Can't connect with: %s" % page
                     continue
                 
-                
-                
                 soup=BeautifulSoup(c.read())
                 for crawler in self.crawlers:
-                    if re.search(crawler.uripattern, page) != None:
-                        crawler.addtoindex(page, soup)  
+                    if (re.search(crawler.uripattern, page)
+                       and not crawler.isindexed(url)):
+                        crawler.addtoindex(page, soup)   
                 links=soup('a')
                 for link  in links:
                     if('href' in dict(link.attrs)):
@@ -36,10 +35,12 @@ class CrawlerFactory():
                         if url[0:4] != 'http': 
                             continue 
                         for crawler in self.crawlers:
-                            if (re.search(crawler.uripattern, url) != None and
-                                crawler.isindexed(url) == False):
+                            if (re.search(crawler.uripattern, url) 
+                                and not crawler.isindexed(url)):
                                 newpages.add(url)
                                                                                           
                 pages=newpages
- 
-
+                
+                                
+                           	   
+                
