@@ -4,11 +4,13 @@ import cgitb; cgitb.enable()
 from string import Template
 import sys
 import cPickle
+
+
 sys.path.append("classes")
-import database
-import animeinfo
-import pagination
-import recommendations
+from Database import Database, SqliteDriver
+from AnimeInfo import AnimeInfo
+from Pagination import Pagination
+import UserRecommendations
 
 print "Content-Type: text/html\n\n"
 print '''
@@ -20,12 +22,12 @@ print '''
 
 q = cgi.FieldStorage().getvalue("q")
 
-pagination = pagination.pagination('templates/pagination', '/cgi/index.py?q=%s' %q , 100)
+pagination = Pagination('templates/pagination', '/cgi/index.py?q=%s' %q , 100)
 pagination.draw()	
 
 if q != None:
-	ai = animeinfo.animeinfo(
-		database.Database(database.SqliteDriver('data/anime.db'))
+	ai = AnimeInfo(
+		Database(SqliteDriver('data/anime.db'))
 	)
 	
 	searchid = ai.getId(q)
