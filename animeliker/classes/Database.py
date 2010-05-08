@@ -3,7 +3,10 @@ from pysqlite2 import dbapi2 as sqlite
 #sqlite database driver
 class SqliteDriver:
     def __init__(self, dbname):
-        self.con=sqlite.connect(dbname)
+        try:
+            self.con=sqlite.connect(dbname)
+        except:
+            print "Can not connect with database %s" % dbname
     def query(self, query):
         pass
     def execute(self, query, params=False):
@@ -16,6 +19,8 @@ class SqliteDriver:
     def commit(self):
         self.con.commit()
        
+    def rollback(self):
+        self.con.rollback()
 
 #Google App Engine database driver
 class AppEngineDriver:
@@ -51,3 +56,6 @@ class Database:
     
     def commit(self):
         self.driver.commit()
+        
+    def rollback(self):
+        self.driver.rollback()
