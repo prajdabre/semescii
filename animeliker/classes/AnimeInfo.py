@@ -13,7 +13,10 @@ class AnimeInfo:
 		self.con = con
 		
 	def info(self, id):
-		return self.con.execute("select * from anime where rowid = %d" % id).fetchone()
+		try:
+			return self.con.execute("select * from anime where rowid = %d" % id).fetchone()[0]
+		except:
+			return False
 
 	def getId(self, anime):
 		res=self.con.execute('select rowid, titles from anime where titles LIKE ?', ('%' + anime + '%',)).fetchall()
