@@ -15,7 +15,7 @@ import UserRecommendations
 print "Content-Type: text/html\n\n"
 
 
-print Template( open('templates/index.html', 'r').read() ).substitute()
+print Template( open('templates/index.html', 'r').read() ).safe_substitute()
 q = cgi.FieldStorage().getvalue("q")
 
 pagination = Pagination('templates/pagination.html', '/cgi/index.py?q=%s' %q , 100)

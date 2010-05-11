@@ -34,7 +34,6 @@ class AnimeInfo:
 	
     #пполучаем аниме наиболее схожее с нашим(movie)		
 	def getscoredlist(self,movie):
-		rowid=self.con.execute("select rowid from anime where titles LIKE '%"+movie+"%'").fetchone()[0]
 		rowid=self.getId(movie)
 		totalscores = {}
 		#scoring

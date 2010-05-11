@@ -11,7 +11,9 @@ q = cgi.FieldStorage().getvalue("q")
 try:
 	con = Database.Database(Database.SqliteDriver('data/anime.db'))
 	results = []
-	res=con.execute('select rowid, titles from anime where titles like ? limit 15', ('%' + q + '%',)).fetchall()
+	res=con.execute('''
+	   select rowid, titles from anime where titles like ? limit 15
+	''', ('%' + q + '%',)).fetchall()
 	for row in res:
 		results.append({
 		    "value": (row[1].split(';|;')[0]), 
