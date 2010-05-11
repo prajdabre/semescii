@@ -2,6 +2,8 @@
 <head>
 <title>Ajax auto-suggest / auto-complete | BrandSpankingNew</title>
 <script type="text/javascript" src="/js/bsn.AutoSuggest_c_2.0.js"></script>
+<script type="text/javascript" src="http://code.jquery.com/jquery-1.4.2.min.js"></script>
+
 <link rel="stylesheet" href="/css/autosuggest_inquisitor.css" type="text/css" media="screen" charset="utf-8" />
 
 
@@ -13,13 +15,14 @@
 		text-align: left;
 		margin: 0;
 		padding: 10px;
+		background-color: #f0f0f8
 	}
 	
 	table
 	{
 		width:100%;
-		border: 1px;
-		background-color: #999;
+		padding: 5px;
+		background-color: #fff;
 		font-size: 10px;
 	}
 	tr
@@ -72,19 +75,19 @@
 	}
 
 	#content h2 {
-		font-size: 1.2em;
-		margin-top: 3em;
+	    font-size: 1.2em;
+	    margin-top: 3em;
 	}
 
 	label
 	{
-		font-weight: bold;
+	    font-weight: bold;
 	}
 	
 	input
 	{
-	color: #781351;
-	border: 1px solid gray;
+	    color: #781351;
+	    border: 1px solid gray;
 	}	
 </style>
 
@@ -92,7 +95,7 @@
 </head>
 <body>
 
-<form action="">
+<form action="" method="GET" id="searchform">
 <input type="text" name="q" id="q" size="50" /> <input type="submit" value="search" />
 </form>
 
@@ -104,4 +107,9 @@ var options = {
 	timeout: 30000
 };
 var as = new AutoSuggest('q', options);
+$("#q").keypress(function(event) {
+    if (event.keyCode == 13){
+        $("#searchform").submit()			   
+    }
+});
 </script>
