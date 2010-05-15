@@ -1,0 +1,85 @@
+@font-face {
+	font-family: 'UniversalisADFStdOblique';
+	src: local('Universalis ADF Std'), local('UniversalisADFStd-Oblique'), url('/f/UniversalisADFStd-Oblique.woff') format('woff'), url('/f/UniversalisADFStd-Oblique.otf') format('opentype');
+}
+
+body {
+	font-family: Lucida Grande, Arial, sans-serif;
+	font:normal medium UniversalisADFStdRegular,'Gill Sans','Gill Sans MT',sans-serif;
+	margin:1.75em auto;
+	word-spacing:0.15em;
+	letter-spacing:0.05em;
+	font-size: 14px;
+	text-align: left;
+	margin: 0;
+	padding: 10px;
+	background-color: #f0f0f8
+}
+
+table {
+	width: 100%;
+	padding: 5px;
+	background-color: #fff;
+	font-size: 12px;
+}
+
+tr {
+	vertical-align: top;
+}
+
+th {
+	text-align: left;
+	background-color: #ccc;
+}
+
+th,td {
+	padding: 2px;
+	font-size: 1.2em;
+}
+
+td {
+	background-color: #fff;
+}
+
+a {
+	font-weight: bold;
+	text-decoration: none;
+	color: #f30;
+}
+
+a:hover {
+	color: #fff;
+	background-color: #f30;
+}
+
+#wrapper {
+	width: 600px;
+	margin: 10px auto;
+	text-align: left;
+}
+
+#content {
+	font-size: 1.2em;
+	line-height: 1.8em;
+}
+
+#content h1 {
+	font-size: 1.6em;
+	border-bottom: 1px solid #ccc;
+	padding: 5px 0 5px 0;
+}
+
+#content h2 {
+	font-size: 1.2em;
+	margin-top: 3em;
+}
+
+label {
+	font-weight: bold;
+}
+
+input {
+	font-size:18px;
+	color: #781351;
+	border: 1px solid gray;
+}
