@@ -10,15 +10,52 @@ from database.Database import Database
 from database.SqliteDriver import SqliteDriver
 from testing.timeit import timeit
 
+import json
+
+
+from htmlentitydefs import codepoint2name
+def unicode2htmlentities(u):
+    htmlentities = list()
+    for c in u:
+        if ord(c) < 128:
+            htmlentities.append(c)
+        else:
+            htmlentities.append('&#%s;' % ord(c))
+    return ''.join(htmlentities)
+
 class AnimeInfo:
     def __init__(self, con):
         self.con = con
     
     def info(self, id):
-        try:
-            return self.con.execute("select * from anime where rowid = %d" % id).fetchone()
-        except:
-            return False
+        info = self.con.execute("""
+            select page, description, titles, score, img  from anime
+            where rowid = %d""" % id).fetchone()
+        if not info: return None
+           
+        (engtitle, altitle, jptitle) = info[2].split(';|;')
+        description = unicode2htmlentities(info[1])
+        info = {
+                'title': engtitle,
+                'altitle': unicode2htmlentities(altitle),
+                'jptitle': unicode2htmlentities(jptitle),
+                'img': info[4], 
+                'description': description, 
+                'score': info[3], 
+                'genres': self.__get('genre', id), 
+                'urldescription': info[0]
+        }
+        return info
+    
+    def __get(self, name, id):
+        res = self.con.execute("""
+            SELECT %s_name FROM %ss
+            WHERE anime_id = %d
+        """ % (name, name, id)).fetchall()
+        result = []
+        for row in res:
+            result.append(row[0])
+        return result
     
     def getId(self, anime):
         try:
@@ -40,15 +77,15 @@ class AnimeInfo:
    
     def getscoredlist(self,rowid):
         weights=[(1.0, self.userscore(rowid)),
-                 (1.0, self.producerscore(rowid)),
-                 (1.5, self.genresscore(rowid)),
-                 (0.5, self.tagsscore(rowid)),
+                 (0.5, self.producerscore(rowid)),
+                 (0.5, self.genresscore(rowid)),
+                 (0.3, self.tagsscore(rowid)),
                  (0.5, self.ratingscore(rowid)),
                  (0, {0:0})]
         ids =  [scores.keys() for weight, scores in weights][0]
         for i in range(0, len(ids)):
             if ids[i] == None: ids[i] = 0
-        weights[5] = (2.0, self.nnscore(rowid, ids))
+        weights[5] = (1.0, self.nnscore(rowid, ids))
         
         totalscores = {}
         for (weight, scores) in weights:
@@ -96,29 +133,31 @@ class AnimeInfo:
     
     @timeit
     def producerscore(self, rowid):
-        cur = self.con.execute("SELECT producers FROM anime WHERE rowid=%d" % rowid)
-        producers = cur.fetchone()[0].split(';|;')
-        
-        res = {}
-        rows = self.con.execute("SELECT rowid FROM anime WHERE producers LIKE '%"+producers[0]+"%'").fetchall()
-        for row in rows:
-            res[row[0]] = 1
-        return self.normalizescores(res)
-    
+        res = self.con.execute("""
+            SELECT t1.anime_id, COUNT(t1.producer_name) as cnt FROM producers t1
+            WHERE t1.producer_name IN
+               (SELECT t2.producer_name FROM producers t2
+                WHERE t2.anime_id = %d)
+            GROUP BY t1.anime_id
+        """ % rowid ).fetchall()
+        result = {}
+        for row in res:
+            result[row[0]] = row[1]
+        return self.normalizescores(result)
+
     @timeit
     def genresscore(self, rowid):
-        cur = self.con.execute("SELECT genres FROM anime WHERE rowid=%d" % rowid)
-        genres = cur.fetchone()[0].split(';|;')
-        
-        res = {}
-        for genre in genres:
-            rows = self.con.execute("SELECT rowid FROM anime WHERE genres LIKE ? AND rowid != ?", ('%'+genre+'%',rowid,) ).fetchall()
-            for row in rows:
-                try:
-                    res[row[0]] += 1
-                except:
-                    res[row[0]] = 1
-        return self.normalizescores(res)
+        res = self.con.execute("""
+            SELECT t1.anime_id, COUNT(t1.genre_name) as cnt  FROM genres t1
+            WHERE t1.genre_name IN
+               (SELECT t2.genre_name FROM genres t2
+                WHERE t2.anime_id = %d)
+            GROUP BY t1.anime_id
+        """ % rowid ).fetchall()
+        result = {}
+        for row in res:
+            result[row[0]] = row[1]
+        return self.normalizescores(result)
         
     def genrennscore(self, rowid):
         pass
@@ -129,14 +168,17 @@ class AnimeInfo:
         
     @timeit
     def tagsscore(self, rowid):
-        cur = self.con.execute("SELECT tags FROM anime WHERE rowid=%d" % rowid)
-        tags = cur.fetchone()[0].split(';|;')
-        
-        res = {}
-        rows = self.con.execute("SELECT rowid FROM anime WHERE tags LIKE ? AND rowid != ?", ('%'+tags[0]+'%',rowid,) ).fetchall()
-        for row in rows:
-            res[row[0]] = 1
-        return res
+        res = self.con.execute("""
+            SELECT t1.anime_id, COUNT(t1.tag_name) as cnt  FROM tags t1
+            WHERE t1.tag_name IN
+               (SELECT t2.tag_name FROM tags t2
+                WHERE t2.anime_id = %d)
+            GROUP BY t1.anime_id
+        """ % rowid ).fetchall()
+        result = {}
+        for row in res:
+            result[row[0]] = row[1]
+        return self.normalizescores(result)
         
     @timeit    
     def nnscore(self, rowid, ids):
@@ -152,4 +194,3 @@ class AnimeInfo:
         keys = rdict.keys()
         keys.sort()
         return map(rdict.get, keys)
-

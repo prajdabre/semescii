@@ -33,41 +33,47 @@ $("#q").keypress(function(event) {
 
 
 {% if AnimeList %}
+	
+	{% for Anime in AnimeList %}
+		<h3>
+		{{Anime.title}} | {{Anime.similarity}}   
+		</h3>
+		
+		<table>
+			<tr>
+				<td valign="top"><img src="{{Anime.img}}" /></td>
+				<td valign="top" width="100%">
+					{{Anime.description}}
+					<br />
+					<b>Score:</b> {{Anime.score}}<br />
+					
+					<b>Genres:</b> 
+					{% for genre in Anime.genres %}
+						{{genre}}
+					{% endfor %}
+					<br />
+					 	
+					{% if Anime.altitle %}
+					<b>Japan title:</b> {{Anime.jptitle}} 
+					<br />
+					{% endif %}				
+					<br />
+					
+					<a href="{{Anime.url}}">{{Anime.urldescription}}</a>
+				</td>
+			</tr>
+		</table>
+	{% endfor %}
 
-<h3>
-  {% if page == 0 %} 
-    &#8592; prev
-  {% else %}
-    &#8592; <a href="?q={{q}}&page={{page-1}}"> prev</a>
-  {% endif %}
-    |
-    <a href="?q={{q}}&page={{page+1}}">next</a> &#8594;
-</h3>
-
-
-{% for Anime in AnimeList %}
-<h3>
-{{Anime.title}} | {{Anime.similarity}}   
-{% if Anime.altitle %}
-<br /><small>{{Anime.altitle}}</small>
-{% endif %}
-</h3>
-
-<table>
-	<tr>
-		<td valign="top"><img src="{{Anime.img}}" /></td>
-		<td valign="top" width="100%">
-			{{Anime.description}}
-			<br />
-			<b>Score:</b> {{Anime.score}}<br />
-			<b>Genres:</b> {{Anime.genres}}<br />
-			<a href="{{Anime.url}}">{{Anime.urldescription}}</a>
-		</td>
-	</tr>
-</table>
-{% endfor %}
-
-
+	<h3>
+	  {% if page == 0 %} 
+	    &#8592; prev
+	  {% else %}
+	    &#8592; <a href="?q={{q}}&page={{page-1}}"> prev</a>
+	  {% endif %}
+	    |
+	    <a href="?q={{q}}&page={{page+1}}">next</a> &#8594;
+	</h3>
 {% endif %}
 
 

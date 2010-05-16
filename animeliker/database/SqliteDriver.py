@@ -5,8 +5,6 @@ class SqliteDriver:
     def __init__(self, dbname):
         self.con=sqlite.connect(dbname)
 
-    def query(self, query):
-        pass
     def execute(self, query, params=False):
         if (params != False):
             return self.con.execute(query, params)

@@ -1,8 +1,6 @@
 class Database:
     def __init__(self, driver):
         self.driver = driver
-    def query(self, query):
-        self.driver.query(query)
         
     def execute(self, query, params=False):
         return self.driver.execute(query, params)
