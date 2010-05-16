@@ -23,7 +23,6 @@ def index(**kwargs):
     try: page = int(kwargs['page'])
     except: page = 0
 
-    
     AnimeList = None
     if q:
         AnimeList = getAnimeList(q, page)
@@ -32,39 +31,24 @@ def index(**kwargs):
     print template.render(q=q, page=page, AnimeList=AnimeList)
 
 
-
-
 @timeit
-def getAnimeList(q, page=0, rows_per_page=10):
-    AnimeList = []
-    
+def getAnimeList(q, page=0, rows_per_page=10):    
     anisearch = AnimeInfo(Database(SqliteDriver('/var/www/data/anime.db')))
     searchid = anisearch.getId(q)
     if searchid == None:
         return None
     recs = anisearch.getscoredlist(searchid)[page*rows_per_page : page*rows_per_page+rows_per_page]
             
+    AnimeList = []            
     ids = []
-    for (id, score) in recs:
+    for (id, similarity) in recs:
             info = anisearch.info(id)
             if info is None: continue
             
             ids.append(str(id))      
-            
-            (engtitle, altitle, jptitle) = info[2].split(';|;')
-            
-            if info is None: continue
-            AnimeList.append({
-                    'title': engtitle,
-                    'altitle': altitle.encode('iso-8859-1', 'ignore'),
-                    'similarity': score,
-                    'img': info[7], 
-                    'description': info[1].encode('iso-8859-1', 'ignore'), 
-                    'score': info[4], 
-                    'genres': ", ".join(info[3].split(';|;')), 
-                    'url': "go.py?search=%s&titles=%s&selected=%s" % (searchid, ",".join(ids), id),
-                    'urldescription': info[0]
-            }) 
+            info['similarity'] = similarity
+            info['url'] = "go.py?search=%s&titles=%s&selected=%s" % (searchid, ",".join(ids), id)
+            AnimeList.append(info) 
 
     return AnimeList
  
