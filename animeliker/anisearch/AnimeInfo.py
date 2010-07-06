@@ -28,6 +28,7 @@ class AnimeInfo:
         self.con = con
     
     def info(self, id):
+        if not id: return None
         info = self.con.execute("""
             select page, description, titles, score, img  from anime
             where rowid = %d""" % id).fetchone()
@@ -36,14 +37,14 @@ class AnimeInfo:
         (engtitle, altitle, jptitle) = info[2].split(';|;')
         description = unicode2htmlentities(info[1])
         info = {
-                'title': engtitle,
+                'title': unicode2htmlentities(engtitle),
                 'altitle': unicode2htmlentities(altitle),
                 'jptitle': unicode2htmlentities(jptitle),
                 'img': info[4], 
                 'description': description, 
                 'score': info[3], 
                 'genres': self.__get('genre', id), 
-                'urldescription': info[0]
+                'urldescription': unicode2htmlentities(info[0])
         }
         return info
     
@@ -76,16 +77,17 @@ class AnimeInfo:
             if (anime==id2): return score
    
     def getscoredlist(self,rowid):
-        weights=[(1.0, self.userscore(rowid)),
-                 (0.5, self.producerscore(rowid)),
+        weights=[(0.5, self.userscore(rowid)),
+                 (0.8, self.producerscore(rowid)),
                  (0.5, self.genresscore(rowid)),
                  (0.3, self.tagsscore(rowid)),
                  (0.5, self.ratingscore(rowid)),
+                 (1.5, self.staffscore(rowid)),
                  (0, {0:0})]
         ids =  [scores.keys() for weight, scores in weights][0]
         for i in range(0, len(ids)):
             if ids[i] == None: ids[i] = 0
-        weights[5] = (1.0, self.nnscore(rowid, ids))
+        weights[6] = (1, self.nnscore(rowid, ids))
         
         totalscores = {}
         for (weight, scores) in weights:
@@ -118,8 +120,29 @@ class AnimeInfo:
         r = UserRecommendations.UserRecommendations( p )
         return self.normalizescores(r.topMatches(rowid))
     
+    @timeit
     def staffscore(self, rowid):
-        pass
+        res = self.con.execute("""
+                 SELECT anime_id FROM anime_positions
+                     WHERE people_id = (
+                     SELECT people_id FROM anime_positions
+                     WHERE anime_id = %d
+                 )
+            UNION 
+                 SELECT anime_id FROM anime_acting_roles
+                     WHERE people_id = (
+                     SELECT people_id FROM anime_positions
+                     WHERE anime_id = %d
+                 )
+        """ % (rowid, rowid)).fetchall()
+        result = {}
+        for row in res:
+            try:
+                result[row[0]] = +1
+            except KeyError:
+                result[row[0]] = 1
+        return self.normalizescores(result)
+
     
     @timeit
     def ratingscore(self, rowid):
